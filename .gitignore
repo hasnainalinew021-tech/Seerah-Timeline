@@ -1,0 +1,15 @@
+# Backend dependencies and secrets
+backand/node_modules/
+backand/.env
+.env
+node_modules/
+npm-debug.log
+
+# Frontend (Flutter) handled by its own .gitignore, but adding build just in case
+frontend/build/
+frontend/.dart_tool/
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
