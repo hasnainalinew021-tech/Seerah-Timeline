@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app_links/app_links.dart';
 import 'screen/splash_screen.dart';
 import 'screen/dashboard_screen.dart';
+import 'package:seerah_timeline/service/favorites_service.dart'; // Added import
 
 // 1. Define a global navigator key
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -14,6 +15,7 @@ void main() async {
     anonKey: "sb_publishable_t9ayeFDKIpuiUcj-2D-MdA_f6qDb2_O",
     url: 'https://hgcarcqmfwmbywrxmpnp.supabase.co',
   );
+  await FavoritesService().init(); // Added this line
   runApp(const MyApp());
 }
 

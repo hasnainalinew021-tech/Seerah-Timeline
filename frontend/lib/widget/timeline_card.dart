@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:seerah_timeline/constants/app_colors.dart';
 import 'package:seerah_timeline/widget/custom_network_image.dart';
-
 import '../screen/event_detail_screen.dart';
+import 'package:seerah_timeline/service/favorites_service.dart';
 
 class TimelineCard extends StatelessWidget {
+  final String id; // Changed to String
   final String year;
   final String title;
   final String description;
@@ -22,6 +23,7 @@ class TimelineCard extends StatelessWidget {
 
   const TimelineCard({
     super.key,
+    required this.id, // Changed
     required this.year,
     required this.title,
     required this.description,
@@ -42,6 +44,7 @@ class TimelineCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => EventDetailScreen(
+              id: id, // Added
               title: title,
               date: year,
               period: category ?? "Unknown Period",
@@ -105,21 +108,45 @@ class TimelineCard extends StatelessWidget {
             ),
             if (year.isNotEmpty) const SizedBox(height: 8),
 
-            // Title
+            // Title with Favorite Icon
             Padding(
               padding: const EdgeInsets.only(right: 16, left: 16),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  title,
-                  textAlign: TextAlign.right,
-                  textDirection: TextDirection.rtl,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                   // Favorite Icon (Left side)
+                   ValueListenableBuilder<List<String>>(
+                    valueListenable: FavoritesService().favoriteIds,
+                    builder: (context, favIds, _) {
+                      final isFav = favIds.contains(id);
+                      return IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.pinkAccent : Colors.white70, // Reddish pink on tap
+                          size: 20, // Small but not too small
+                        ),
+                        onPressed: () {
+                          FavoritesService().toggleFavorite(id);
+                        },
+                      );
+                    },
                   ),
-                ),
+                  
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.right,
+                        textDirection: TextDirection.rtl,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 

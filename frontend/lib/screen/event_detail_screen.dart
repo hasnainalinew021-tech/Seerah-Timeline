@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:seerah_timeline/constants/app_colors.dart';
 import 'package:seerah_timeline/screen/active_quiz_screen.dart';
 import 'package:seerah_timeline/widget/custom_network_image.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:seerah_timeline/service/favorites_service.dart'; // Added
 
-class EventDetailScreen extends StatelessWidget {
+class EventDetailScreen extends StatefulWidget {
+  final String id; // Changed
   final String title;
   final String date;
   final String period;
@@ -18,6 +21,7 @@ class EventDetailScreen extends StatelessWidget {
 
   const EventDetailScreen({
     super.key,
+    required this.id,
     required this.title,
     required this.date,
     required this.period,
@@ -27,6 +31,41 @@ class EventDetailScreen extends StatelessWidget {
     this.references = const [],
     this.lessons = const [],
   });
+
+  @override
+  State<EventDetailScreen> createState() => _EventDetailScreenState();
+}
+
+class _EventDetailScreenState extends State<EventDetailScreen> {
+  YoutubePlayerController? _youtubeController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.imageUrl != null) {
+      final videoId = YoutubePlayer.convertUrlToId(widget.imageUrl!);
+      if (videoId != null) {
+        _youtubeController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(
+            autoPlay: false,
+            mute: false,
+            disableDragSeek: false,
+            loop: false,
+            isLive: false,
+            forceHD: false,
+            enableCaption: true,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _youtubeController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +81,24 @@ class EventDetailScreen extends StatelessWidget {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.share_outlined, color: Color(0xFF0D9488)),
+            padding: const EdgeInsets.only(right: 16),
+            child: ValueListenableBuilder<List<String>>(
+              valueListenable: FavoritesService().favoriteIds,
+              builder: (context, favIds, _) {
+                final isFav = favIds.contains(widget.id);
+                return IconButton(
+                  icon: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? Colors.pinkAccent : const Color(0xFF0D9488),
+                  ),
+                  onPressed: () {
+                    FavoritesService().toggleFavorite(widget.id);
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -55,33 +108,48 @@ class EventDetailScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Optional banner image
-              if (imageAsset != null || imageUrl != null)
+              // Banner: YouTube Player or Image
+              if (widget.imageAsset != null || widget.imageUrl != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 200,
-                    child: imageAsset != null
-                        ? Image.asset(imageAsset!, fit: BoxFit.cover)
-                        : CustomNetworkImage(
-                            imageUrl: imageUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: Container(
-                              color: Colors.teal.shade300,
-                              child: const Center(
-                                child: Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.white70,
-                                  size: 44,
-                                ),
-                              ),
+                  child: Container(
+                     width: double.infinity,
+                     // If it's a YouTube video, let the player determine height (aspect ratio)
+                     // If it's an image, force height 200
+                     height: _youtubeController != null ? null : 200, 
+                     decoration: const BoxDecoration(
+                       shape: BoxShape.rectangle,
+                     ),
+                    child: _youtubeController != null
+                        ? YoutubePlayer(
+                            controller: _youtubeController!,
+                            showVideoProgressIndicator: true,
+                            progressIndicatorColor: const Color(0xFF0D9488),
+                            progressColors: const ProgressBarColors(
+                              playedColor: Color(0xFF0D9488),
+                              handleColor: Color(0xFF0D9488),
                             ),
-                          ),
+                          )
+                        : (widget.imageAsset != null
+                            ? Image.asset(widget.imageAsset!, fit: BoxFit.cover)
+                            : CustomNetworkImage(
+                                imageUrl: widget.imageUrl!,
+                                fit: BoxFit.cover,
+                                errorWidget: Container(
+                                  color: Colors.teal.shade300,
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.broken_image_rounded,
+                                      color: Colors.white70,
+                                      size: 44,
+                                    ),
+                                  ),
+                                ),
+                              )),
                   ),
                 ),
 
-              if (imageAsset != null || imageUrl != null)
+              if (widget.imageAsset != null || widget.imageUrl != null)
                 const SizedBox(height: 16),
               
               // 🕌 Title Section
@@ -104,7 +172,7 @@ class EventDetailScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      title,
+                      widget.title,
                       textAlign: TextAlign.right,
                       textDirection: TextDirection.rtl,
                       style: const TextStyle(
@@ -124,7 +192,7 @@ class EventDetailScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                   if (period.isNotEmpty && period != "Unknown Period")
+                   if (widget.period.isNotEmpty && widget.period != "Unknown Period")
                     Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFD1FAE5),
@@ -136,7 +204,7 @@ class EventDetailScreen extends StatelessWidget {
                         vertical: 6,
                       ),
                       child: Text(
-                        period,
+                        widget.period,
                         style: const TextStyle(
                           color: Color(0xFF0D9488),
                           fontWeight: FontWeight.w600,
@@ -145,9 +213,9 @@ class EventDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-                   if (date.isNotEmpty)
+                   if (widget.date.isNotEmpty)
                     Text(
-                      date,
+                      widget.date,
                       textAlign: TextAlign.right,
                       textDirection: TextDirection.rtl,
                       style: const TextStyle(
@@ -178,7 +246,7 @@ class EventDetailScreen extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  description,
+                  widget.description,
                   textAlign: TextAlign.right, // RTL for Urdu text
                   textDirection: TextDirection.rtl,
                   style: const TextStyle(
@@ -196,7 +264,7 @@ class EventDetailScreen extends StatelessWidget {
                _buildExpandableTile(
                   "References",
                   Icons.menu_book_outlined,
-                  references,
+                  widget.references,
                   context,
                 ),
                 
@@ -206,7 +274,7 @@ class EventDetailScreen extends StatelessWidget {
                _buildExpandableTile(
                   "Lessons & Wisdom",
                   Icons.lightbulb_outline,
-                  lessons,
+                  widget.lessons,
                   context,
                 ),
 
@@ -221,8 +289,8 @@ class EventDetailScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ActiveQuizScreen(
-                            eventTitle: title,
-                            eventContent: description,
+                            eventTitle: widget.title,
+                            eventContent: widget.description,
                           ),
                         ),
                       );

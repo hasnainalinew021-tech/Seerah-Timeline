@@ -255,6 +255,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                         return buildTimelineItem(
                           context,
                           TimelineCard(
+                            id: event['id'].toString(), 
                             year: event['year'] ?? '',
                             title: event['title'] ?? 'Untitled',
                             description: event['short_description'] ?? '',
