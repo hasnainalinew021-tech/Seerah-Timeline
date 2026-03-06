@@ -17,7 +17,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
 
 async function ingestData() {
     try {
-        const filePath = path.join(process.cwd(), 'dummy.txt'); // Use process.cwd() from root backand folder
+        const filePath = process.cwd().endsWith('backand') ? path.join(process.cwd(), '../dummy.txt') : path.join(process.cwd(), 'dummy.txt');
 
         console.log(`📖 Reading data from ${filePath}...`);
         if (!fs.existsSync(filePath)) {
@@ -25,7 +25,11 @@ async function ingestData() {
             return;
         }
 
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        let fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = fileContent.trim();
+        if (fileContent.startsWith('{') && fileContent.endsWith('}')) {
+            fileContent = `[${fileContent}]`;
+        }
         const data = JSON.parse(fileContent);
 
         // console.log(`🧹 Clearing existing data from BOTH tables...`);

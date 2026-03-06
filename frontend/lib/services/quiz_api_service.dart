@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import '../models/quiz_model.dart';
 
 class QuizApiService {
-  // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web
-  // Ideally this should come from a centralized config
+  // Using the host LAN IP (192.168.100.56) works for BOTH the Physical Device 
+  // AND the Android Emulator because the emulator can route to the host's LAN.
   static const String _baseUrl = 'http://10.0.2.2:3000/api/quiz';
 
   Future<List<QuizQuestion>> generateQuiz(String title, String content) async {

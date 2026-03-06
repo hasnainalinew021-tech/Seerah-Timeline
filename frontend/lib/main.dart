@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app_links/app_links.dart';
 import 'screen/splash_screen.dart';
 import 'screen/dashboard_screen.dart';
-import 'package:seerah_timeline/service/favorites_service.dart'; // Added import
+import 'package:seerah_timeline/services/favorites_service.dart'; // Added import
 
 // 1. Define a global navigator key
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

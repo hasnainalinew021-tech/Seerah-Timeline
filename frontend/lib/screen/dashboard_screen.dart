@@ -10,6 +10,8 @@ import '../tabs/lesson_tab.dart';
 import './chatbot_screen.dart';
 import '../constants/app_colors.dart';
 import './quiz_screen.dart';
+import './notification_screen.dart';
+import './shumail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -52,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 8),
               buildInfoCards(),
               const SizedBox(height: 10),
-              buildEventOfDayCard(),
+              shumailEvents(context),
               const SizedBox(height: 10),
               buildTimelineLessonRow(context),
               const SizedBox(height: 10),
@@ -141,7 +143,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: AppColors.primary,
               size: 24,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotificationScreen()),
+              );
+            },
           ),
         ),
       ],
@@ -288,8 +295,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ---------------- Event of the Day Card ----------------
-  Widget buildEventOfDayCard() {
-    return Container(
+  Widget shumailEvents(BuildContext context) {
+    return GestureDetector(
+    child: Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       decoration: BoxDecoration(
@@ -345,6 +353,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+    ),
+    onTap: () {
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const ShumailScreen())
+        );
+      }
     );
   }
 

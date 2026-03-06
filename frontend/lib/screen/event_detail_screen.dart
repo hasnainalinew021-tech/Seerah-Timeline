@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:seerah_timeline/constants/app_colors.dart';
 import 'package:seerah_timeline/screen/active_quiz_screen.dart';
+import 'package:seerah_timeline/widget/custom_back_button.dart';
 import 'package:seerah_timeline/widget/custom_network_image.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:seerah_timeline/service/favorites_service.dart'; // Added
+import 'package:seerah_timeline/services/favorites_service.dart'; // Added
 
 class EventDetailScreen extends StatefulWidget {
   final String id; // Changed
@@ -74,13 +75,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppColors.primary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: CustomBackButton(),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),

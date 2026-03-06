@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:seerah_timeline/models/quiz_model.dart';
 import 'package:seerah_timeline/services/quiz_api_service.dart';
-import 'package:seerah_timeline/widgets/quiz_background.dart';
+import 'package:seerah_timeline/widget/quiz_background.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:seerah_timeline/screen/quiz_screen.dart'; // For navigation after finishing?

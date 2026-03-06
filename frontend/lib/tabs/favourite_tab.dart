@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:seerah_timeline/constants/app_colors.dart';
-import 'package:seerah_timeline/service/favorites_service.dart';
+import 'package:seerah_timeline/services/favorites_service.dart';
 import 'package:seerah_timeline/screen/video_player_screen.dart';
 import 'package:seerah_timeline/screen/event_detail_screen.dart';
 import 'package:seerah_timeline/widget/custom_network_image.dart';

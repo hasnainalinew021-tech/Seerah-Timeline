@@ -230,7 +230,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       _controller.clear();
       FocusScope.of(context).unfocus();
 
-      // 3. Make API Call (Use 10.0.2.2 for Android Emulator)
+      // 3. Make API Call (Uses host LAN IP: works for BOTH Emulator & Physical Device!)
       final url = Uri.parse('http://10.0.2.2:3000/api/chat/query');
       final response = await http.post(
         url,

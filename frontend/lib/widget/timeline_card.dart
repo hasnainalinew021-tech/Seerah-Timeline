@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:seerah_timeline/constants/app_colors.dart';
 import 'package:seerah_timeline/widget/custom_network_image.dart';
 import '../screen/event_detail_screen.dart';
-import 'package:seerah_timeline/service/favorites_service.dart';
+import 'package:seerah_timeline/services/favorites_service.dart';
 
 class TimelineCard extends StatelessWidget {
   final String id; // Changed to String

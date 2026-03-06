@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:seerah_timeline/widget/custom_appbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_colors.dart';
 import '../widget/timeline_card.dart';
@@ -38,9 +39,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Failed to load events: $e';
         isLoading = false;
+        
       });
     }
   }
@@ -119,43 +122,9 @@ class _TimelineScreenState extends State<TimelineScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppColors.primary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: RichText(
-          text: const TextSpan(
-            children: [
-              TextSpan(
-                text: "Seerah ",
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextSpan(
-                text: "Timeline",
-                style: TextStyle(
-                  color: AppColors.accent,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-
+      appBar: CustomAppbar(titleOne: "Seerah ", titleTwo: "Timeline"),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 5),
         child: Column(
           children: [
             // 🔍 Search Bar
