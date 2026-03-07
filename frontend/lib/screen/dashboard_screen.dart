@@ -314,7 +314,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Event of the Day',
+                  'Shumail of Rasulullah ﷺ',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -323,17 +323,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'The Birth of Prophet Muhammad (ﷺ)',
+                  'How Prophet(PBUH) looked and behaved',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: Colors.white,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  '12 Rabi\' al-Awwal',
-                  style: TextStyle(fontSize: 12, color: Colors.white70),
+                  'His(ﷺ) Akhalaq, speaking, style and teachings',
+                  style: TextStyle(fontSize: 12, color: Color.fromARGB(240, 255, 255, 255)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
                 ),
               ],
             ),

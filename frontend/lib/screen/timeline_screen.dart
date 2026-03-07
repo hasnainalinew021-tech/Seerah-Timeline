@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:seerah_timeline/widget/app_search_bar.dart';
 import 'package:seerah_timeline/widget/custom_appbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_colors.dart';
@@ -19,6 +20,13 @@ class _TimelineScreenState extends State<TimelineScreen> {
   String? errorMessage;
   String selectedCategory = 'All'; // Default selected tab
   String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -128,40 +136,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
         child: Column(
           children: [
             // 🔍 Search Bar
-            TextField(
+            AppSearchBar(
+              hintText: "Search Events, Places", 
               onChanged: _onSearchQueryChanged,
-              decoration: InputDecoration(
-                hintText: 'Search Events, Places...',
-                prefixIcon: const Icon(Icons.search, color: AppColors.primary),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 16,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(28),
-                  borderSide: const BorderSide(
-                    color: AppColors.backgroundMint,
-                    width: 1.5,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(28),
-                  borderSide: const BorderSide(
-                    color: AppColors.backgroundMint,
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(28),
-                  borderSide: const BorderSide(
-                    color: AppColors.primary,
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
+               controller: _searchController
+               ),
             const SizedBox(height: 16),
 
             // 🔹 Filter Buttons Row
