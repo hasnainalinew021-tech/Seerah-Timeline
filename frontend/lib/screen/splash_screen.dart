@@ -14,9 +14,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  int _activeDotIndex = 0;
+  Timer? _animationTimer; 
+
   @override
   void initState() {
     super.initState();
+
+    _startDotAnimation();
 
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
@@ -34,6 +39,31 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       }
     });
+  }
+
+  void _startDotAnimation() {
+    int tickCount = 0;
+    _animationTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mounted) {
+        setState(() {
+          _activeDotIndex = (_activeDotIndex + 1) % 3;
+        });
+      }
+      
+      tickCount++;
+      // Stop after 6 ticks (3 seconds), matching your splash screen delay
+      if (tickCount >= 3) {
+        timer.cancel();
+      }
+    });
+  }
+  
+
+  @override
+  void dispose() {
+    // Always cancel the timer to prevent memory leaks
+    _animationTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -147,13 +177,16 @@ class _SplashScreenState extends State<SplashScreen> {
               // Page indicator (3 dots)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildDot(true, Colors.orange.shade500),
-                  const SizedBox(width: 6),
-                  _buildDot(false, Colors.teal.shade400),
-                  const SizedBox(width: 6),
-                  _buildDot(false, Colors.teal.shade400),
-                ],
+                children: List.generate(3, (index) {
+                  bool isActive = _activeDotIndex == index;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: _buildDot(
+                      isActive,
+                      isActive ? Colors.orange.shade500 : Colors.teal.shade400,
+                    ),
+                  );
+                }),
               ),
             ],
           ),

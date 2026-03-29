@@ -147,25 +147,73 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               if (widget.imageAsset != null || widget.imageUrl != null)
                 const SizedBox(height: 16),
               
-              // 🕌 Title Section
+              // 🕌 Title Section with Date & Period
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
+                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF0D9488).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.3)),
                     ),
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(8),
                     child: const Icon(
-                      Icons.menu_book_rounded,
+                      Icons.military_tech_rounded,
                       color: Color(0xFF0D9488),
-                      size: 28,
+                      size: 26,
                     ),
                   ),
                   const SizedBox(width: 12),
+                  
+                  // Date and Period in small format
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (widget.period.isNotEmpty && widget.period != "Unknown Period")
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD1FAE5),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.3)),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              child: Text(
+                                widget.period,
+                                style: const TextStyle(
+                                  color: Color(0xFF0D9488),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          if (widget.period.isNotEmpty && widget.period != "Unknown Period" && widget.date.isNotEmpty)
+                            const SizedBox(height: 4),
+                          if (widget.date.isNotEmpty)
+                            Text(
+                              widget.date,
+                              textAlign: TextAlign.right,
+                              textDirection: TextDirection.rtl,
+                              style: const TextStyle(
+                                color: Colors.black54, 
+                                fontSize: 12, 
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Noto Nastaliq Urdu',
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
                   Expanded(
+                    flex: 2,
                     child: Text(
                       widget.title,
                       textAlign: TextAlign.right,
@@ -175,50 +223,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Noto Nastaliq Urdu',
+                        height: 1.4,
                       ),
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-              
-              // Date && Period Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                   if (widget.period.isNotEmpty && widget.period != "Unknown Period")
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD1FAE5),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.3)),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        widget.period,
-                        style: const TextStyle(
-                          color: Color(0xFF0D9488),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                   if (widget.date.isNotEmpty)
-                    Text(
-                      widget.date,
-                      textAlign: TextAlign.right,
-                      textDirection: TextDirection.rtl,
-                      style: const TextStyle(
-                        color: Colors.black54, 
-                        fontSize: 14, 
-                        fontWeight: FontWeight.w500
-                      ),
-                    ),
                 ],
               ),
 
@@ -263,17 +271,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   context,
                 ),
                 
-               const SizedBox(height: 12),
-
-              // 💡 Collapsible Lessons
-               _buildExpandableTile(
+              if (widget.lessons.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                
+                // 💡 Collapsible Lessons
+                _buildExpandableTile(
                   "Lessons & Wisdom",
                   Icons.lightbulb_outline,
                   widget.lessons,
                   context,
                 ),
+              ],
 
-                const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
                 // 📝 Take Quiz Button
                 SizedBox(

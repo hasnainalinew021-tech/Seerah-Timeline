@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../constants/app_colors.dart';
+import '../widget/timeline_card.dart';
+import '../widget/custom_appbar.dart';
+import '../widget/app_search_bar.dart';
+
+class ShumailEventsListScreen extends StatefulWidget {
+  final String category;
+  
+  const ShumailEventsListScreen({super.key, required this.category});
+
+  @override
+  State<ShumailEventsListScreen> createState() => _ShumailEventsListScreenState();
+}
+
+class _ShumailEventsListScreenState extends State<ShumailEventsListScreen> {
+  final supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> events = [];
+  List<Map<String, dynamic>> filteredEvents = [];
+  bool isLoading = true;
+  String? errorMessage;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final response = await supabase
+          .from('shumail_events')
+          .select()
+          .eq('category', widget.category)
+          .order('order_index', ascending: true);
+
+      setState(() {
+        events = List<Map<String, dynamic>>.from(response);
+        _filterEvents();
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = 'Failed to load events: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  void _filterEvents() {
+    setState(() {
+      filteredEvents = events.where((event) {
+        final query = _searchQuery.toLowerCase().trim();
+        final title = (event['title'] ?? '').toString().toLowerCase();
+        final description = (event['short_description'] ?? '').toString().toLowerCase();
+
+        return query.isEmpty || title.contains(query) || description.contains(query);
+      }).toList();
+    });
+  }
+
+  void _onSearchQueryChanged(String query) {
+    _searchQuery = query;
+    _filterEvents();
+  }
+
+  Widget buildShumailItem(BuildContext context, Widget card) {
+    return Padding(
+       padding: const EdgeInsets.only(bottom: 16),
+       child: card,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.scaffoldBackground,
+      appBar: CustomAppbar(
+        titleOne: "", 
+        titleTwo: widget.category, // Displays the selected category name as the app bar title
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+        child: Column(
+          children: [
+            AppSearchBar(
+              hintText: "Search inside ${widget.category}...", 
+              onChanged: _onSearchQueryChanged,
+              controller: _searchController
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : errorMessage != null
+                  ? Center(child: Text(errorMessage!, style: const TextStyle(color: Colors.red)))
+                  : filteredEvents.isEmpty
+                  ? const Center(child: Text('No events found in this category'))
+                  : ListView.builder(
+                      itemCount: filteredEvents.length,
+                      itemBuilder: (context, index) {
+                        final event = filteredEvents[index];
+                        final refs = (event['references'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+
+                        return buildShumailItem(
+                          context,
+                          TimelineCard(
+                            id: event['id'].toString(), 
+                            year: '', // Excluded since Shumail generally lacks years
+                            title: event['title'] ?? 'Untitled',
+                            description: event['short_description'] ?? '',
+                            imageUrl: event['image_url'], // May be null or omitted
+                            fullDescription: event['full_description'],
+                            category: event['category'],
+                            references: refs,
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

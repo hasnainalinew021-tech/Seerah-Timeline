@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:seerah_timeline/widget/app_search_bar.dart';
 import 'package:seerah_timeline/widget/custom_appbar.dart';
 import '../constants/app_colors.dart';
+import '../widget/category_card.dart';
+import './shumail_events_list_screen.dart';
+
 class ShumailScreen extends StatefulWidget {
     const ShumailScreen({super.key});
     
@@ -10,37 +14,124 @@ class ShumailScreen extends StatefulWidget {
 }
 
 class _ShumailScreenState extends State<ShumailScreen> {
+  final supabase = Supabase.instance.client;
   String _searchQuery = "";
-  final TextEditingController _searchController =TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  
+  List<String> categories = [];
+  List<String> filteredCategories = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      // Fetch all events and extract unique categories
+      final response = await supabase
+          .from('shumail_events')
+          .select('category, order_index')
+          .order('order_index', ascending: true);
+
+      final Set<String> uniqueCategories = {};
+      for (var item in response) {
+        if (item['category'] != null) {
+          uniqueCategories.add(item['category'].toString());
+        }
+      }
+
+      setState(() {
+        categories = uniqueCategories.toList();
+        filteredCategories = categories;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching categories: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   void _onSearchChanged(String value) {
     setState(() {
-      _searchQuery = value;
+      _searchQuery = value.toLowerCase();
+      filteredCategories = categories.where((cat) => cat.toLowerCase().contains(_searchQuery)).toList();
     });
   }
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-    @override
-    Widget build(BuildContext context) {
+  IconData _getIconForCategory(String category) {
+    final lower = category.toLowerCase();
+    if (lower.contains('اخلاق')) return Icons.favorite_border;
+    if (lower.contains('طب') || lower.contains('tibb')) return Icons.healing;
+    if (lower.contains('دعائیں') || lower.contains('dua')) return Icons.chat_bubble_outline;
+    if (lower.contains('عبادات') || lower.contains('ibada')) return Icons.auto_awesome;
+    if (lower.contains('قرآن') || lower.contains('quran')) return Icons.menu_book;
+    if (lower.contains('سیرت') || lower.contains('seerah')) return Icons.person_outline;
+    if (lower.contains('حدیث') || lower.contains('hadith')) return Icons.library_books;
+    if (lower.contains('نبوت') || lower.contains('nabuwat')) return Icons.star_border;
+    return Icons.folder_special_outlined; // Default fallback icon
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: const CustomAppbar(titleOne: ' Shumail of ', titleTwo: 'Rasulullah ﷺ'),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          child: Column(
-            children: [
-              AppSearchBar(
-              hintText: "Search Shumail or any Dua 🤲🏻", 
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Column(
+          children: [
+            AppSearchBar(
+              hintText: "Search Shumail Categories 🤲🏻", 
               onChanged: _onSearchChanged, 
               controller: _searchController
-              )
-            ],
-          ),
-        )
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredCategories.isEmpty
+                      ? const Center(child: Text('No categories found', style: TextStyle(color: Colors.black54)))
+                      : GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1.1, // Matches roughly the squarish cards in design
+                          ),
+                          itemCount: filteredCategories.length,
+                          itemBuilder: (context, index) {
+                            final category = filteredCategories[index];
+                            return CategoryCard(
+                              title: category,
+                              icon: _getIconForCategory(category),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ShumailEventsListScreen(category: category),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
     );
-    }
+  }
 }
